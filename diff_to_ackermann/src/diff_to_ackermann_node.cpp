@@ -32,7 +32,11 @@ class DiffToAck : public rclcpp::Node
           ackermann_msg.linear.x = 2*msg->angular.z;  // speed proportional to angular velocity
         } else if (ticks_ <= 15) {  // go backwards while turning double the time
           ackermann_msg.linear.x = -2*msg->angular.z;
-          ackermann_msg.angular.z = max_steer_angle_;
+          if (msg->angular.z > 0){
+            ackermann_msg.angular.z = max_steer_angle_;
+          } else {
+            ackermann_msg.angular.z = -max_steer_angle_;
+          }
         } else if (ticks_ <= 20) {  // go forward again to go back to starting point
           ackermann_msg.linear.x = 2*msg->angular.z;
           if (ticks_ == 20){
