@@ -1,0 +1,15 @@
+[Unit]
+Description=Transform diff drive commands to ackermann commands
+After=network.target
+
+[Service]
+# make sure the install folder is three levels up (in the workspace)
+ExecStart=/bin/bash -c 'source ../../../install/setup.bash; /opt/ros/humble/bin/ros2 run diff_to_ackermann diff_to_ackermann; echo "Hello World" > /home/your_user/hello.txt'
+Restart=on-failure
+RestartSec=2s
+# Adapt user and ros domain id for your use. 
+User=alice
+Environment="ROS_DOMAIN_ID=4"
+
+[Install]
+WantedBy=default.target
