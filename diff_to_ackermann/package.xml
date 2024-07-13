@@ -3,9 +3,12 @@
 <package format="3">
   <name>diff_to_ackermann</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Converts messages from Differential to Ackermann velocity commands</description>
   <maintainer email="alice@guntli.com">alice</maintainer>
   <license>TODO: License declaration</license>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
