@@ -19,8 +19,7 @@ class DiffToAck : public rclcpp::Node
 
     void twistCallback(const geometry_msgs::msg::Twist::SharedPtr msg)
     {
-      // Assuming the following parameters for demonstration, replace with actual values
-      double wheelbase = 0.5; // Example wheelbase in meters
+      double wheelbase = 0.65; // from online search (https://general-laser.at/en/shop-en/hunter-2-0-en)
 
       // Convert differential drive to Ackermann drive
       geometry_msgs::msg::Twist ackermann_msg;
@@ -29,7 +28,7 @@ class DiffToAck : public rclcpp::Node
       if (std::abs(msg->linear.x) < 1e-6) {
         ackermann_msg.angular.z = 0; // Pure rotation case
       } else {
-        ackermann_msg.angular.z = std::atan2(wheelbase * msg->angular.z, msg->linear.x);
+        ackermann_msg.angular.z = std::atan2(wheelbase * msg->angular.z, std::abs(msg->linear.x));
       }
       
       ackermann_msg.linear.x = msg->linear.x; // Linear velocity remains the same
