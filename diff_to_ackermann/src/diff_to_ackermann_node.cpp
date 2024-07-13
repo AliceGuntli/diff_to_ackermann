@@ -28,12 +28,12 @@ class DiffToAck : public rclcpp::Node
       // Calculate steering angle
       if (std::abs(msg->linear.x) < 0.01 && std::abs(msg->angular.z)>0.01) {
         
-        if (forward <= 10){
+        if (forward <= 10){  // go forward a while
           ackermann_msg.linear.x = 0.5;
-        } else if (forward <= 30) {
+        } else if (forward <= 30) {  // go backwards while turning double the time
           ackermann_msg.linear.x = -1.0;
-          ackermann_msg.angular.z = 20*msg->angular.z; // Pure rotation case
-        } else if (forward <= 40) {
+          ackermann_msg.angular.z = 20*msg->angular.z;
+        } else if (forward <= 40) {  // go forward again to go back to starting point
           ackermann_msg.linear.x = 0.5;
           if (forward == 40){
             forward = 0;
