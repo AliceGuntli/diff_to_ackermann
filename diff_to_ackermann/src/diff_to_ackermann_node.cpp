@@ -13,7 +13,7 @@ class DiffToAck : public rclcpp::Node
       publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
       subscriber_ = this->create_subscription<geometry_msgs::msg::Twist>(
         "diffdrive_cmd", 10, std::bind(&DiffToAck::twistCallback, this, std::placeholders::_1));
-      forward = 0;
+      ticks_ = 0;
     }
 
   private:
@@ -27,19 +27,19 @@ class DiffToAck : public rclcpp::Node
       
       // Calculate steering angle
       if (std::abs(msg->linear.x) < 0.01 && std::abs(msg->angular.z)>0.01) {
-        
-        if (forward <= 10){  // go forward a while
-          ackermann_msg.linear.x = 0.5;
-        } else if (forward <= 30) {  // go backwards while turning double the time
-          ackermann_msg.linear.x = -1.0;
-          ackermann_msg.angular.z = 20*msg->angular.z;
-        } else if (forward <= 40) {  // go forward again to go back to starting point
-          ackermann_msg.linear.x = 0.5;
-          if (forward == 40){
-            forward = 0;
+        // Ackermann drive cannot do pure rotation, it will therefore maneuvre until it gets there:
+        if (ticks_ <= 5){  // go forward a while (arbitrarily chosen to 5 commands)
+          ackermann_msg.linear.x = 2*msg->angular.z;  // speed proportional to angular velocity
+        } else if (ticks_ <= 15) {  // go backwards while turning double the time
+          ackermann_msg.linear.x = -2*msg->angular.z;
+          ackermann_msg.angular.z = max_steer_angle_;
+        } else if (ticks_ <= 20) {  // go forward again to go back to starting point
+          ackermann_msg.linear.x = 2*msg->angular.z;
+          if (ticks_ == 20){
+            ticks_ = 0;
           }
         }
-        forward++;
+        ticks_++;
       } else {
         ackermann_msg.angular.z = std::atan2(wheelbase * msg->angular.z, std::abs(msg->linear.x));
         ackermann_msg.linear.x = msg->linear.x; // Linear velocity remains the same
@@ -49,7 +49,8 @@ class DiffToAck : public rclcpp::Node
 
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr publisher_;
     rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr subscriber_;
-    int forward; 
+    int ticks_; 
+    const double max_steer_angle_ = 0.58;  // rad/s
 };
 
 int main(int argc, char * argv[])
